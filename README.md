@@ -18,3 +18,4 @@ Simple Django project for internship in The BitByBit company
 ## Current Python dependencies
 * Python 3.11.0
 * Django 4.1.7
+* Django REST framework 3.14.0
