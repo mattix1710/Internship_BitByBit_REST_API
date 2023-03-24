@@ -1,8 +1,13 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-# example
+# created models
+from master_CS.models import Course
+from .serializers import CourseSerializer
+
+
 @api_view(['GET'])
 def getData(request):
-    person = {'name':'Jan', 'age':30}
-    return Response(person)
+    courses = Course.objects.all()
+    serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)

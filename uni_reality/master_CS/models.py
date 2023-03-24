@@ -7,7 +7,7 @@ class User(models.Model):
     mail = models.EmailField(primary_key=True)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
-    password = models.Charfield(max_lenth=40)
+    password = models.CharField(max_length=40)       # stored as SHA1 hash function
     type = models.CharField(max_length=7, choices=POSITION_CHOICES)
 
 # COURSE model
