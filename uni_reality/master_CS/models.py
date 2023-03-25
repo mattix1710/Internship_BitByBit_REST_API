@@ -12,7 +12,7 @@ class User(models.Model):
 
 # COURSE model
 class Course(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     desc = models.TextField()
     teacher = models.ForeignKey(User, on_delete=models.PROTECT, db_column='teacher', to_field='mail')
     
@@ -25,7 +25,8 @@ class Chapter(models.Model):
     name = models.CharField(max_length=50)
     desc = models.TextField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    
+
+# TODO: probably delete this model
 class Lecture(models.Model):
     title = models.CharField(max_length=50)
     desc = models.TextField()

@@ -4,7 +4,7 @@
 """
 
 from rest_framework import serializers
-from master_CS.models import Course
+from master_CS.models import *
 
 
 
@@ -12,3 +12,9 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'
+        
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseAssignment
+        fields = '__all__'
+        depth = 2
