@@ -9,6 +9,8 @@ class User(models.Model):
     surname = models.CharField(max_length=50)
     password = models.CharField(max_length=40)       # stored as SHA1 hash function
     type = models.CharField(max_length=7, choices=POSITION_CHOICES)
+    is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
 # COURSE model
 class Course(models.Model):
