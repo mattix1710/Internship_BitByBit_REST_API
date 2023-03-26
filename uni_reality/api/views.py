@@ -97,7 +97,7 @@ def createCourse(request):
         # chapter = chapter_ser.save()
         chapter_ser.save()
     
-    return Response({'message': 'Course, chapters and lectures created successfully'}, status=status.HTTP_201_CREATED)
+    return Response({'message': 'Course and chapters created successfully'}, status=status.HTTP_201_CREATED)
 
 '''
 EXAMPLE:
@@ -116,7 +116,7 @@ EXAMPLE:
             "name": "Chapter 2 Name",
             "desc": "Chapter 2 Description"
         }
-    ],
+    ]
 }
 '''
     

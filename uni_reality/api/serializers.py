@@ -26,7 +26,7 @@ class StudentSerializer(serializers.ModelSerializer):
 class ChapterDispSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
-        fields = ['name', 'desc', 'lectures']
+        fields = ['name', 'desc']
         
 class CourseFullDispSerializer(serializers.ModelSerializer):
     chapters = ChapterDispSerializer(many = True)
