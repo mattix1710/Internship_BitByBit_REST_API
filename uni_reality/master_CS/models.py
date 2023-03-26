@@ -86,10 +86,3 @@ class Chapter(models.Model):
     name = models.CharField(max_length=50)
     desc = models.TextField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='chapters')
-
-# TODO: probably delete this model
-class Lecture(models.Model):
-    title = models.CharField(max_length=50)
-    desc = models.TextField()
-    recording = models.URLField()
-    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='lectures')

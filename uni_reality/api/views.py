@@ -76,7 +76,6 @@ def createCourse(request):
     
     course_data = request.data.get('course')
     chapters_data = request.data.get('chapters')
-    lectures_data = request.data.get('lectures')
     
     course_serializer = CourseCreateSerializer(data = course_data)
     if course_serializer.is_valid():
@@ -95,18 +94,8 @@ def createCourse(request):
             return Response(chapter_serializer.erorrs, status = status.HTTP_400_BAD_REQUEST)
     
     for chapter_ser in chapter_serializers:
-        chapter = chapter_ser.save()
-        for lecture in lectures_data:
-            if lecture['chapter'] == chapter.pk:
-                #INFO: bezsens - to samo?
-                lecture['chapter'] = chapter.pk
-                lecture_serializer = LectureSerializer(data = lecture)
-                if lecture_serializer.is_valid():
-                    lecture_serializer.save()
-                else:
-                    course.delete()
-                    chapter.delete()
-                    return Response(lecture_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # chapter = chapter_ser.save()
+        chapter_ser.save()
     
     return Response({'message': 'Course, chapters and lectures created successfully'}, status=status.HTTP_201_CREATED)
 
@@ -128,20 +117,6 @@ EXAMPLE:
             "desc": "Chapter 2 Description"
         }
     ],
-    "lectures": [
-        {
-            "title": "Lecture 1 Title",
-            "desc": "Lecture 1 Description",
-            "recording": "https://example.com/lecture1",
-            "chapter": 1
-        },
-        {
-            "title": "Lecture 2 Title",
-            "desc": "Lecture 2 Description",
-            "recording": "https://example.com/lecture2",
-            "chapter": 2
-        }
-    ]
 }
 '''
     
@@ -160,9 +135,8 @@ def updateCourse(request, *args, **kwargs):
     
     course_serializer = CourseFullDispSerializer(curr_course, data = request.data.get('course'))
     chapter_serializer = ChapterSerializer(data = request.data.get('chapters'), many=True)
-    lecture_serializer = LectureSerializer(data = request.data.get('lectures'), many=True)
     
-    if course_serializer.is_valid() and chapter_serializer.is_valid() and lecture_serializer.is_valid():
+    if course_serializer.is_valid() and chapter_serializer.is_valid():
         course_serializer.save()
         chapter_serializer.save(course = curr_course)
         return Response({'success': True}, status=status.HTTP_200_OK)
