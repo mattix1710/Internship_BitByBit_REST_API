@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 from rest_framework.request import Request
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import generics
 
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
@@ -120,6 +121,7 @@ EXAMPLE:
 }
 '''
     
+    
 # TODO: almost DONE - updateCourse
 @api_view(['PUT'])
 @permission_classes([isCourseOwner])
@@ -133,12 +135,104 @@ def updateCourse(request, *args, **kwargs):
     if curr_course.instructor != User.objects.get(email=request.user.email):
         return Response({'error': 'Only owner can modify his courses'}, status=status.HTTP_403_FORBIDDEN)
     
-    course_serializer = CourseFullDispSerializer(curr_course, data = request.data.get('course'))
-    chapter_serializer = ChapterSerializer(data = request.data.get('chapters'), many=True)
+    print(request.data.get('course'))
+    print(request.data.get('chapters'))
     
-    if course_serializer.is_valid() and chapter_serializer.is_valid():
-        course_serializer.save()
-        chapter_serializer.save(course = curr_course)
-        return Response({'success': True}, status=status.HTTP_200_OK)
+    course_data = request.data.get('course')
+    chapters_data = request.data.get('chapters')
     
-    return Response({'success': False, 'errors': course_serializer.errors + chapter_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    course_data['instructor'] = request.user
+    
+    course_serializer = CourseSerializer(data = course_data)
+    if course_serializer.is_valid():
+        course = course_serializer.update()
+    else:
+        return Response(course_serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+    
+    chapter_serializers = []
+    for chapter in chapters_data:
+        chapter['course'] = course.pk
+        chapter_serializer = ChapterSerializer(data = chapter)
+        if chapter_serializer.is_valid():
+            chapter_serializers.append(chapter_serializer)
+        else:
+            return Response(chapter_serializer.erorrs, status = status.HTTP_400_BAD_REQUEST)
+    
+    for chapter_ser in chapter_serializers:
+        chapter_ser.update()
+    
+    return Response({'message': 'Course and chapters created successfully'}, status=status.HTTP_201_CREATED)
+
+'''
+{
+    "id": 11,
+    "name": "New Course Name",
+    "desc": "New Course Description",
+    "instructor": "m.livingston@uni.com",
+    "chapters": [
+        {
+            "id": 51,
+            "name": "Chapter 1 Name",
+            "desc": "Chapter 1 Description"
+        },
+        {
+            "id": 52,
+            "name": "Chapter 2 Name",
+            "desc": "Chapter 2 Description"
+        },
+        {
+            "name": "Chapter No3",
+            "desc": "Chapter 3 Description"
+        }
+    ]
+}
+
+
+{
+    "course": {
+        "name": "New Course Name",
+        "desc": "New Course Description"
+    },
+    "chapters": [
+        {
+            "name": "Chapter 1 Name",
+            "desc": "Chapter 1 Description"
+        },
+        {
+            "name": "Chapter 2 Name",
+            "desc": "Chapter 2 Description"
+        },
+        {
+            "name": "Chapter No3",
+            "desc": "Chapter 3 Description"
+        }
+    ]
+}
+'''
+
+@api_view(['PUT'])
+@permission_classes([isCourseOwner])
+def course_update_view(request, *args, **kwargs):
+    try:
+        course = Course.objects.get(pk=kwargs['id'])
+    except Course.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    print(request.data)
+    serializer = CourseFullDispSerializer(course, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class CourseUpdateView(generics.UpdateAPIView):
+#     queryset = Course.objects.all()
+#     serializer_class = CourseFullDispSerializer
+#     lookup_field = 'id'
+    
+#     def perform_update(self, serializer):
+#         course = serializer.validated_data.get('course')
+        
+        
+#         return super().perform_update(serializer)

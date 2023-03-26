@@ -22,6 +22,6 @@ class isCourseOwner(permissions.BasePermission):
             return False
         if request.user.type != 'INSTRUCTOR':
             return False
-        if obj.course not in request.user.course_set.all():
+        if request.user != obj.instructor:
             return False
         return True

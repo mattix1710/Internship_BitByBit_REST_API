@@ -4,6 +4,8 @@
 """
 
 from rest_framework import serializers
+from django.core.exceptions import ObjectDoesNotExist
+
 from master_CS.models import *
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,14 +28,35 @@ class StudentSerializer(serializers.ModelSerializer):
 class ChapterDispSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
-        fields = ['name', 'desc']
+        fields = ['id', 'name', 'desc']
         
 class CourseFullDispSerializer(serializers.ModelSerializer):
     chapters = ChapterDispSerializer(many = True)
     
     class Meta:
         model = Course
-        fields = ['name', 'desc', 'instructor', 'chapters']
+        fields = ['id', 'name', 'desc', 'instructor', 'chapters']
+        
+    def update(self, instance, validated_data):
+        print("VAL_DATA_type", type(validated_data))
+        chapters_data = validated_data.pop('chapters')
+        instance.name = validated_data.get('name', instance.name)
+        instance.desc = validated_data.get('desc', instance.desc)
+        instance.instructor = validated_data.get('instructor', instance.instructor)
+        instance.save()
+        
+        for chapter_data in chapters_data:
+            print("DATA:",chapter_data)
+            try:
+                chapter = Chapter.objects.get(id = chapter_data.get('id'))
+                chapter.name = chapter_data['name']
+                chapter.desc = chapter_data['desc']
+                chapter.save()
+            except ObjectDoesNotExist:
+                # if such chapter doesn't yet exist - create new!
+                chapter = Chapter.objects.create(name = chapter_data['name'], desc = chapter_data['desc'], course = instance)
+                chapter.save()
+        return instance
         
 #---------------------------------------------------
 #--- PRIVATE ENDPOINT - Assigned Courses display ---
