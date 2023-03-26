@@ -13,11 +13,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'name', 'surname', 'assignedCourses']
-
-# class CourseSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Course
-#         fields = '__all__'
         
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,7 +36,7 @@ class ChapterSerializer(serializers.ModelSerializer):
         model = Chapter
         fields = ['name', 'desc', 'lectures']
         
-class CourseSerializer(serializers.ModelSerializer):
+class CourseFullSerializer(serializers.ModelSerializer):
     chapters = ChapterSerializer(many = True)
     
     class Meta:
@@ -80,3 +75,8 @@ class UserBasicInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'username', 'first_name', 'last_name', 'date_joined', 'type']
+        
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['name', 'desc', 'instructor']

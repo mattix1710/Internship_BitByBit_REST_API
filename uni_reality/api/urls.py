@@ -7,6 +7,5 @@ urlpatterns = [
     path('api/courses/', views.getCourses),
     path('api/student/', views.aboutMe),
     path('api/courses/my-courses/', views.getMyCourses),
-    
-    # path('api/my_courses/', views.CourseListViewAuth.as_view()),
+    path('api/courses/instructor/<str:email>/', views.instructorCourses),
 ]

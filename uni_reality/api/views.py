@@ -13,14 +13,14 @@ from django.contrib.auth import authenticate, login, logout
 
 # created models
 from master_CS.models import *
-from .serializers import CourseSerializer, StudentSerializer, StudentCoursesSerializer, UserBasicInfoSerializer
+from .serializers import CourseSerializer, CourseFullSerializer, StudentSerializer, StudentCoursesSerializer, UserBasicInfoSerializer
 
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def getCourses(request: Request):
     # print(request.content_type)
     courses = Course.objects.all()
-    serializer = CourseSerializer(courses, many=True)
+    serializer = CourseFullSerializer(courses, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -49,3 +49,24 @@ def aboutMe(request):
     my_info = User.objects.get(email = request.user.email)
     serializer = UserBasicInfoSerializer(my_info)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def instructorCourses(request, *args, **kwargs):
+    
+    instructor = kwargs['email']
+    courses = Course.objects.filter(instructor_id = instructor)
+    serializer = CourseSerializer(courses, many = True)
+
+    print(request)
+    # if not (email or first_name and last_name):
+    #     return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    # if email:
+    #     courses = Course.objects.filter(instructor_id = email)
+    #     serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def addCourse(request):
+    print(request)
