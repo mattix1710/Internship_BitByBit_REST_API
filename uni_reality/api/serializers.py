@@ -24,20 +24,20 @@ class StudentSerializer(serializers.ModelSerializer):
 #-------- PUBLIC ENDPOINT - Course display ---------
 #---------------------------------------------------
 
-class LectureSerializer(serializers.ModelSerializer):
+class LectureDispSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lecture
         fields = ['title', 'desc', 'recording']
 
-class ChapterSerializer(serializers.ModelSerializer):
-    lectures = LectureSerializer(many = True)
+class ChapterDispSerializer(serializers.ModelSerializer):
+    lectures = LectureDispSerializer(many = True)
     
     class Meta:
         model = Chapter
         fields = ['name', 'desc', 'lectures']
         
-class CourseFullSerializer(serializers.ModelSerializer):
-    chapters = ChapterSerializer(many = True)
+class CourseFullDispSerializer(serializers.ModelSerializer):
+    chapters = ChapterDispSerializer(many = True)
     
     class Meta:
         model = Course
@@ -80,3 +80,26 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['name', 'desc', 'instructor']
+        
+class CourseIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['id', 'name', 'desc', 'instructor']
+        
+#---------------------------------------------------
+#------ PRIVATE ENDPOINT - create new COURSE -------
+#---------------------------------------------------
+class LectureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lecture
+        fields = '__all__'
+        
+class ChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapter
+        fields = '__all__'
+
+class CourseCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['name', 'desc']
