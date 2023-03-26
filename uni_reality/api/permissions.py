@@ -18,6 +18,8 @@ class isCourseOwner(permissions.BasePermission):
     '''
     
     def has_object_permission(self, request, view, obj):
+        if request.user.is_anonymous:
+            return False
         if request.user.type != 'INSTRUCTOR':
             return False
         if obj.course not in request.user.course_set.all():

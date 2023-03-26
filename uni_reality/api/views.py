@@ -1,7 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.request import Request
-from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 
@@ -9,11 +8,11 @@ from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny
 
-from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import get_object_or_404
 
 # created models
 from master_CS.models import *
-from .serializers import CourseSerializer, CourseIdSerializer, CourseFullDispSerializer, StudentSerializer, StudentCoursesSerializer, UserBasicInfoSerializer, ChapterSerializer, LectureSerializer, CourseCreateSerializer
+from .serializers import CourseSerializer, CourseIdSerializer, CourseFullDispSerializer, StudentSerializer, StudentCoursesSerializer, UserBasicInfoSerializer, ChapterSerializer, CourseCreateSerializer
 from .permissions import isInstructorOrAdmin, isCourseOwner
 
 @api_view(['GET'])
@@ -62,7 +61,13 @@ def instructorCourses(request, *args, **kwargs):
     print(request)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-# TODO: createCourse
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def getCourseDetails(request, *args, **kwargs):
+    courses = Course.objects.get(id = kwargs['id'])
+    serializer = CourseFullDispSerializer(courses, many=False)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @permission_classes([isInstructorOrAdmin])
 def createCourse(request):
@@ -140,15 +145,26 @@ EXAMPLE:
 }
 '''
     
-@api_view(['GET'])
-@permission_classes([permissions.AllowAny])
-def getCourseDetails(request, *args, **kwargs):
-    courses = Course.objects.get(id = kwargs['id'])
-    serializer = CourseFullDispSerializer(courses, many=False)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-    
-# TODO: updateCourse
+# TODO: almost DONE - updateCourse
 @api_view(['PUT'])
 @permission_classes([isCourseOwner])
-def  updateCourse(request):
-    print("Hello")
+def updateCourse(request, *args, **kwargs):
+    # INFO: probably this IF will never be executed - due to permission_class checks
+    if request.user.type != 'INSTRUCTOR':
+        return Response({'error': 'Only instructors can modify courses'}, status=status.HTTP_403_FORBIDDEN)
+    
+    curr_course = get_object_or_404(Course, pk=kwargs['id'])
+    
+    if curr_course.instructor != User.objects.get(email=request.user.email):
+        return Response({'error': 'Only owner can modify his courses'}, status=status.HTTP_403_FORBIDDEN)
+    
+    course_serializer = CourseFullDispSerializer(curr_course, data = request.data.get('course'))
+    chapter_serializer = ChapterSerializer(data = request.data.get('chapters'), many=True)
+    lecture_serializer = LectureSerializer(data = request.data.get('lectures'), many=True)
+    
+    if course_serializer.is_valid() and chapter_serializer.is_valid() and lecture_serializer.is_valid():
+        course_serializer.save()
+        chapter_serializer.save(course = curr_course)
+        return Response({'success': True}, status=status.HTTP_200_OK)
+    
+    return Response({'success': False, 'errors': course_serializer.errors + chapter_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
