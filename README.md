@@ -24,8 +24,8 @@ Simple Django project for internship in The BitByBit company
 ## Proposed reality
 * There are 3 main models
   * **User** - can be a type {student/instructor/admin}
-  * **Course** - students can be assigned and instructors can be owners
-  * **Chapter** - chapters of course (relationship 1-N with Course)
+  * **Course** - students can be assigned to them and instructors can be owners of the course
+  * **Chapter** - chapters of a course (relationship 1-N with Course)
 * There is 1 helper model
   * **CourseAssignment** - holds relationship between **User** and **Course** in many-to-many way
     * Each **User** can be assigned to many **Courses**
