@@ -8,7 +8,10 @@ Simple Django project for internship in The BitByBit company
 * **creating admin account**
     > py manage.py createsuperuser<br>
     > Username: admin<br>
+    > First_name: <first_name><br>
+    > Last_name: <last_name><br>
     > Email address: \<some_email\><br>
+    > Type: <STUDENT/INSTRUCTOR/ADMIN><br>
     > Password: \<some_password\><br>
 * **creating database**
     > py manage.py migrate<br>
