@@ -8,24 +8,12 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from master_CS.models import *
 
-class UserSerializer(serializers.ModelSerializer):
-    
-    assignedCourses = serializers.PrimaryKeyRelatedField(many=True, queryset=CourseAssignment.objects.all())
-    
-    class Meta:
-        model = User
-        fields = ['email', 'name', 'surname', 'assignedCourses']
-        
-class StudentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseAssignment
-        fields = '__all__'
-        depth = 2
-
 #---------------------------------------------------
 #-------- PUBLIC ENDPOINT - Course display ---------
 #---------------------------------------------------
 class ChapterDispSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=True)
+    
     class Meta:
         model = Chapter
         fields = ['id', 'name', 'desc']
@@ -36,9 +24,10 @@ class CourseFullDispSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['id', 'name', 'desc', 'instructor', 'chapters']
-        
+
+    # custom update() method for nested representation
     def update(self, instance, validated_data):
-        print("VAL_DATA_type", type(validated_data))
+        print("VALI_DATA:", validated_data)
         chapters_data = validated_data.pop('chapters')
         instance.name = validated_data.get('name', instance.name)
         instance.desc = validated_data.get('desc', instance.desc)
@@ -46,9 +35,9 @@ class CourseFullDispSerializer(serializers.ModelSerializer):
         instance.save()
         
         for chapter_data in chapters_data:
-            print("DATA:",chapter_data)
+            print("CHAPTER:", chapter_data['id'])
             try:
-                chapter = Chapter.objects.get(id = chapter_data.get('id'))
+                chapter = Chapter.objects.get(pk = chapter_data['id'])
                 chapter.name = chapter_data['name']
                 chapter.desc = chapter_data['desc']
                 chapter.save()
@@ -57,30 +46,6 @@ class CourseFullDispSerializer(serializers.ModelSerializer):
                 chapter = Chapter.objects.create(name = chapter_data['name'], desc = chapter_data['desc'], course = instance)
                 chapter.save()
         return instance
-        
-#---------------------------------------------------
-#--- PRIVATE ENDPOINT - Assigned Courses display ---
-#---------------------------------------------------
-
-class StudentCourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = ['name', 'desc', 'instructor']
-
-class CourseAssignmentSerializer(serializers.ModelSerializer):
-    courses = StudentCourseSerializer()
-    
-    class Meta:
-        model = CourseAssignment
-        fields = ['courses']
-        depth = 1
-        
-class StudentCoursesSerializer(serializers.ModelSerializer):
-    courses = CourseAssignmentSerializer(many = True, read_only=True)
-    
-    class Meta:
-        model = User
-        fields = ['email', 'type', 'courses']
         
 #---------------------------------------------------
 #---- PRIVATE ENDPOINT - display About Me info -----
@@ -94,11 +59,6 @@ class UserBasicInfoSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['name', 'desc', 'instructor']
-        
-class CourseIdSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
         fields = ['id', 'name', 'desc', 'instructor']
         
 #---------------------------------------------------
@@ -107,9 +67,19 @@ class CourseIdSerializer(serializers.ModelSerializer):
 class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
-        fields = '__all__'
+        fields = ['name', 'desc']
 
 class CourseCreateSerializer(serializers.ModelSerializer):
+    chapters = ChapterSerializer(many = True)
     class Meta:
         model = Course
-        fields = ['name', 'desc']
+        fields = ['name', 'desc', 'chapters']
+        
+    def create(self, validated_data):
+        chapters_data = validated_data.pop('chapters')
+        course = Course.objects.create(**validated_data)
+        
+        for chap in chapters_data:
+            Chapter.objects.create(name = chap['name'], desc = chap['desc'], course = course)
+        
+        return course
