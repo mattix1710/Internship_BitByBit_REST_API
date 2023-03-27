@@ -49,3 +49,9 @@ Simple Django project for internship in The BitByBit company
 ### ONLY FOR INSTRUCTORS (superusers)
 * **`api/courses/create/`** - [POST] - create new course
 * **`api/courses/<str:id>/update/`** - [PUT] - update course only if current user is the owner
+
+***
+## Additional info
+
+* Models are stored in **`master_CS`** app
+* All the REST API connected files are stored in **`api`** app
