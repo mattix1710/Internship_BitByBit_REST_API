@@ -19,3 +19,19 @@ Simple Django project for internship in The BitByBit company
 * Python 3.11.0
 * Django 4.1.7
 * Django REST framework 3.14.0
+
+***
+## Available API entries
+
+### PUBLIC
+* **`api/courses/`** - [GET] - display all courses
+* **`api/courses/instructor/<str:email>/`** - [GET] - display all courses of given *instructor*
+* **`api/courses/<str:id>/`** - [GET] - display details of given course
+
+### PRIVATE
+* **`api/my-info/`** - [GET] - get information about currently logged in user
+* **`api/courses/my-courses/`** - [GET] - list all courses to which STUDENT is assigned OR which owner is INSTRUCTOR
+
+### ONLY FOR INSTRUCTORS (superusers)
+* **`api/courses/create/`** - [POST] - create new course
+* **`api/courses/<str:id>/update/`** - [PUT] - update course only if current user is the owner
