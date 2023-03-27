@@ -21,6 +21,17 @@ Simple Django project for internship in The BitByBit company
 * Django REST framework 3.14.0
 
 ***
+## Proposed reality
+* There are 3 main models
+  * **User** - can be a type {student/instructor/admin}
+  * **Course** - students can be assigned and instructors can be owners
+  * **Chapter** - chapters of course (relationship 1-N with Course)
+* There is 1 helper model
+  * **CourseAssignment** - holds relationship between **User** and **Course** in many-to-many way
+    * Each **User** can be assigned to many **Courses**
+    * Each **Course** can be assigned to many **Users**
+
+***
 ## Available API entries
 
 ### PUBLIC
